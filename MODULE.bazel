@@ -5,24 +5,25 @@ module(
 
 git_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-bazel_dep(name = "abseil-cpp", version = "20250512.1")
-bazel_dep(name = "protobuf", version = "33.2")
+bazel_dep(name = "abseil-cpp", version = "20260107.1")
+bazel_dep(name = "protobuf", version = "34.0.bcr.1")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2")
-bazel_dep(name = "google_benchmark", version = "1.8.5")
-bazel_dep(name = "rules_cc", version = "0.2.16")
+bazel_dep(name = "google_benchmark", version = "1.9.5")
+bazel_dep(name = "rules_cc", version = "0.2.17")
 
 bazel_dep(name = "eigen", version = "3.4.0.bcr.3")
+#bazel_dep(name = "eigen", version = "5.0.1.bcr.1")
 
 # GenIt
 git_repository(
     name = "x_edr_genit",
-    commit = "651c895114170840aafe738b55d4bb67cacd9fdd",
+    commit = "06c800828d18b9dde83f3590ed4b5a38ca16a24c",
     remote = "https://github.com/mikael-s-persson/x-edr-genit.git",
 )
 
 # Eigenmath
 git_repository(
     name = "x_edr_eigenmath",
-    commit = "36f96af84bed625b61a40ae4646acf866810f877",
+    commit = "483ab4f6382f0f3f59e8de6aef446d0efe914835",
     remote = "https://github.com/mikael-s-persson/x-edr-eigenmath.git",
 )

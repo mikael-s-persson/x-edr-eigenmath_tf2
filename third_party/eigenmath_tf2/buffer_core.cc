@@ -127,7 +127,7 @@ BufferCore::BufferCore(absl::Duration cache_time) : cache_time_(cache_time) {
 }
 
 void BufferCore::Clear() {
-  absl::WriterMutexLock lock(&frame_mutex_);
+  absl::WriterMutexLock lock(frame_mutex_);
   if (frames_.size() < 2) {
     return;
   }
@@ -184,7 +184,7 @@ absl::Status BufferCore::SetTransform(
   CompactFrameID child_frame_num, parent_frame_num;
   bool new_child_frame, new_parent_frame;
   {
-    absl::WriterMutexLock lock(&frame_mutex_);
+    absl::WriterMutexLock lock(frame_mutex_);
     child_frame_num =
         LookupOrInsertFrameNumber(child_frame_id, &new_child_frame);
     parent_frame_num =
@@ -401,7 +401,7 @@ struct TransformAccum {
 absl::StatusOr<Pose3d> BufferCore::LookupTransform(
     std::string_view target_frame, std::string_view source_frame,
     absl::Time query_time, absl::Time* transform_time) const {
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
   return LookupTransformNoLock(target_frame, source_frame, query_time,
                                transform_time);
 }
@@ -411,7 +411,7 @@ absl::StatusOr<Pose3d> BufferCore::LookupTransform(
     std::string_view source_frame, const absl::Time& source_time,
     std::string_view fixed_frame, absl::Time* target_transform_time,
     absl::Time* source_transform_time) const {
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
 
   EIGENMATH_TF2_RETURN_IF_ERROR(
       ValidatedFrameId(target_frame).status(),
@@ -448,7 +448,7 @@ absl::StatusOr<Pose2d> BufferCore::LookupTransform2d(
     std::string_view target_frame, std::string_view source_frame,
     absl::Time query_time, absl::string_view horizontal_frame,
     absl::Time* transform_time) const {
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
 
   EIGENMATH_TF2_RETURN_IF_ERROR(
       ValidatedFrameId(target_frame).status(),
@@ -490,7 +490,7 @@ absl::StatusOr<Pose2d> BufferCore::LookupTransform2d(
     std::string_view fixed_frame, absl::string_view horizontal_frame,
     absl::Time* target_transform_time,
     absl::Time* source_transform_time) const {
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
 
   EIGENMATH_TF2_ASSIGN_OR_RETURN(
       CompactFrameID target_id, ValidatedFrameId(target_frame),
@@ -736,7 +736,7 @@ absl::Status BufferCore::CanTransform(std::string_view target_frame,
     return absl::OkStatus();
   }
 
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
 
   EIGENMATH_TF2_ASSIGN_OR_RETURN(
       CompactFrameID target_id, ValidatedFrameId(target_frame),
@@ -778,7 +778,7 @@ absl::Status BufferCore::CanTransform(std::string_view target_frame,
 absl::Status BufferCore::GetTransformTimeInterval(
     std::string_view target_frame, std::string_view source_frame,
     absl::Time* oldest_time, absl::Time* latest_time) const {
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
 
   EIGENMATH_TF2_ASSIGN_OR_RETURN(
       CompactFrameID target_id, ValidatedFrameId(target_frame),
@@ -839,7 +839,7 @@ absl::StatusOr<absl::string_view> BufferCore::LookupFrameString(
 }
 
 absl::Status BufferCore::RemoveTransformFrame(std::string_view child_frame_id) {
-  absl::WriterMutexLock lock(&frame_mutex_);
+  absl::WriterMutexLock lock(frame_mutex_);
   // Get the compact id.
   const CompactFrameID cfid = LookupFrameNumber(child_frame_id);
   if (cfid == kRootFrameId) {
@@ -875,7 +875,7 @@ absl::Status BufferCore::RemoveTransformFrame(std::string_view child_frame_id) {
 }
 
 std::string BufferCore::AllFramesAsString() const {
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
   return this->AllFramesAsStringNoLock();
 }
 
@@ -1096,7 +1096,7 @@ absl::Status BufferCore::GetCommonTimeInterval(CompactFrameID target_id,
 
 std::string BufferCore::AllFramesAsYAML(absl::Time query_time) const {
   std::stringstream mstream;
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
 
   TransformStorage temp;
 
@@ -1152,7 +1152,7 @@ std::string BufferCore::AllFramesAsYAML() const {
 }
 
 std::vector<TransformStorage> BufferCore::CollectAllTransforms() const {
-  absl::ReaderMutexLock lock(&frame_mutex_);
+  absl::ReaderMutexLock lock(frame_mutex_);
   std::vector<TransformStorage> result;
   for (const auto& [c_frame_id, cache] : frames_) {
     if (cache == nullptr) {
@@ -1165,7 +1165,7 @@ std::vector<TransformStorage> BufferCore::CollectAllTransforms() const {
 }
 
 std::string BufferCore::GetFrameId(CompactFrameID c_frame_id) const {
-  absl::MutexLock lock(&frame_mutex_);
+  absl::MutexLock lock(frame_mutex_);
   auto it = frame_ids_reverse_.find(c_frame_id);
   if (it == frame_ids_reverse_.end()) {
     return "";
@@ -1174,7 +1174,7 @@ std::string BufferCore::GetFrameId(CompactFrameID c_frame_id) const {
 }
 
 std::string BufferCore::GetFrameAuthority(CompactFrameID c_frame_id) const {
-  absl::MutexLock lock(&frame_mutex_);
+  absl::MutexLock lock(frame_mutex_);
   auto it = frame_authority_.find(c_frame_id);
   if (it == frame_authority_.end()) {
     return "";
