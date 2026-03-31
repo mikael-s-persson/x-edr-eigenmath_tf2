@@ -24,6 +24,6 @@ git_repository(
 # Eigenmath
 git_repository(
     name = "x_edr_eigenmath",
-    commit = "483ab4f6382f0f3f59e8de6aef446d0efe914835",
+    commit = "0365a1c044315819bb16c9d5882e505bec01d0f1",
     remote = "https://github.com/mikael-s-persson/x-edr-eigenmath.git",
 )
